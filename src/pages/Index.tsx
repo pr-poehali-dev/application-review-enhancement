@@ -153,7 +153,7 @@ const Index = () => {
             <p className="text-muted-foreground">Обычно это занимает менее 3 минут</p>
           </div>
 
-          <Card className="bg-accent/5 p-6 mb-4">
+          <Card className="bg-accent/5 p-6">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center flex-shrink-0">
                 <Icon name="Clock" size={24} className="text-primary-foreground" />
@@ -167,30 +167,6 @@ const Index = () => {
               </div>
             </div>
             <Progress value={progressPercent} className="mt-4" />
-          </Card>
-
-          <Card className="bg-background p-6 mb-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center flex-shrink-0">
-                <Icon name="Wallet" size={24} className="text-primary-foreground" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm text-muted-foreground mb-1">Запрошенная сумма</p>
-                <span className="text-3xl font-bold">{loanData.amount}</span>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="bg-background p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center flex-shrink-0">
-                <Icon name="Calendar" size={24} className="text-primary-foreground" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm text-muted-foreground mb-1">Вернуть до</p>
-                <span className="text-3xl font-bold">{loanData.returnDate}</span>
-              </div>
-            </div>
           </Card>
         </Card>
       </div>
