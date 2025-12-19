@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Виджет статуса заявки</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f6f6f7;
+            color: #1a1f2c;
+            line-height: 1.6;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .widget {
+            width: 100%;
+            max-width: 42rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 3rem 2rem;
+        }
+        
+        @media (min-width: 768px) {
+            .card {
+                padding: 3rem;
+            }
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #1a1f2c;
+        }
+        
+        @media (min-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+        }
+        
+        .subtitle {
+            color: #6b7280;
+            font-size: 1.125rem;
+            margin-bottom: 2rem;
+        }
+        
+        .timer-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .circular-progress {
+            position: relative;
+            width: 10rem;
+            height: 10rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        @media (min-width: 768px) {
+            .circular-progress {
+                width: 12rem;
+                height: 12rem;
+            }
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+        }
+        
+        .progress-ring-circle-bg {
+            stroke: #e5e7eb;
+            fill: none;
+            stroke-width: 8;
+        }
+        
+        .progress-ring-circle {
+            stroke: #0ea5e9;
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s ease;
+        }
+        
+        .spinner-container {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .spinner-bg {
+            width: 7.5rem;
+            height: 7.5rem;
+            background-color: rgba(14, 165, 233, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        @media (min-width: 768px) {
+            .spinner-bg {
+                width: 9rem;
+                height: 9rem;
+            }
+        }
+        
+        .spinner {
+            width: 3rem;
+            height: 3rem;
+            border: 4px solid #0ea5e9;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .processing-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        @media (min-width: 768px) {
+            .processing-title {
+                font-size: 2.25rem;
+            }
+        }
+        
+        .processing-text {
+            color: #6b7280;
+        }
+        
+        .info-card {
+            background-color: #f0f9ff;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .info-card-white {
+            background-color: #f6f6f7;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .icon-box {
+            width: 3rem;
+            height: 3rem;
+            background-color: #0ea5e9;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            color: white;
+        }
+        
+        .info-content {
+            flex: 1;
+        }
+        
+        .info-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+        
+        .info-value {
+            font-size: 1.875rem;
+            font-weight: 700;
+        }
+        
+        .time-remaining {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+        }
+        
+        .time-text {
+            color: #6b7280;
+        }
+        
+        .progress-bar-container {
+            width: 100%;
+            height: 0.5rem;
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: #0ea5e9;
+            transition: width 1s ease;
+        }
+        
+        .success-icon-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .success-icon-bg {
+            width: 6rem;
+            height: 6rem;
+            background-color: rgba(14, 165, 233, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .success-icon {
+            width: 3rem;
+            height: 3rem;
+            color: #0ea5e9;
+        }
+        
+        .success-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        @media (min-width: 768px) {
+            .success-title {
+                font-size: 2.5rem;
+            }
+        }
+        
+        .application-number {
+            font-size: 1.25rem;
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+        }
+        
+        .call-info-card {
+            background-color: rgba(14, 165, 233, 0.05);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
+        }
+        
+        .call-info-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            text-align: left;
+        }
+        
+        .call-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .call-text {
+            color: #6b7280;
+        }
+        
+        .call-time {
+            font-weight: 600;
+        }
+        
+        .specialist-section {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 2rem;
+        }
+        
+        .specialist-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+        
+        .specialist-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+        }
+        
+        @media (min-width: 768px) {
+            .specialist-card {
+                flex-direction: row;
+            }
+        }
+        
+        .avatar {
+            width: 6rem;
+            height: 6rem;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .specialist-info {
+            flex: 1;
+            text-align: center;
+        }
+        
+        @media (min-width: 768px) {
+            .specialist-info {
+                text-align: left;
+            }
+        }
+        
+        .specialist-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .specialist-position {
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+        
+        .contact-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .contact-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: #0ea5e9;
+            text-decoration: none;
+        }
+        
+        @media (min-width: 768px) {
+            .contact-link {
+                justify-content: flex-start;
+            }
+        }
+        
+        .contact-link:hover {
+            text-decoration: underline;
+        }
+        
+        .contact-icon {
+            width: 1.125rem;
+            height: 1.125rem;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="widget">
+            <!-- Экран обработки -->
+            <div id="processingScreen">
+                <div class="text-center" style="margin-bottom: 2rem;">
+                    <h1 class="title">Договор займа</h1>
+                    <p class="subtitle">от <span id="applicationDate"></span></p>
+                </div>
+
+                <div class="card">
+                    <div class="timer-container">
+                        <div class="circular-progress">
+                            <svg class="progress-ring">
+                                <circle class="progress-ring-circle-bg" cx="50%" cy="50%" r="45%"></circle>
+                                <circle id="progressCircle" class="progress-ring-circle" cx="50%" cy="50%" r="45%"></circle>
+                            </svg>
+                            <div class="spinner-container">
+                                <div class="spinner-bg">
+                                    <div class="spinner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h2 class="processing-title">Обработка данных</h2>
+                        <p class="processing-text">Обычно это занимает менее 3 минут</p>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-row">
+                            <div class="icon-box">
+                                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                            </div>
+                            <div class="info-content">
+                                <p class="info-label">Рассмотрение заявки</p>
+                                <div class="time-remaining">
+                                    <span class="info-value" id="timer">03:00</span>
+                                    <span class="time-text">осталось</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="info-card-white">
+                        <div class="info-row">
+                            <div class="icon-box">
+                                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                    <polyline points="3.29 7 12 12 20.71 7"></polyline>
+                                    <line x1="12" y1="22" x2="12" y2="12"></line>
+                                </svg>
+                            </div>
+                            <div class="info-content">
+                                <p class="info-label">Запрошенная сумма</p>
+                                <span class="info-value">88 000 ₽</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-card-white">
+                        <div class="info-row">
+                            <div class="icon-box">
+                                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                            </div>
+                            <div class="info-content">
+                                <p class="info-label">Вернуть до</p>
+                                <span class="info-value">13.03.2026</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Экран завершения -->
+            <div id="completedScreen" class="hidden">
+                <div class="card fade-in">
+                    <div class="success-icon-container">
+                        <div class="success-icon-bg">
+                            <svg class="success-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <h1 class="success-title">Заявка обработана</h1>
+                        <p class="application-number">Заявка <span id="applicationNumber"></span></p>
+                    </div>
+                    
+                    <div class="call-info-card">
+                        <div class="call-info-content">
+                            <div class="icon-box">
+                                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="call-title">Ожидайте звонка специалиста</h3>
+                                <p class="call-text">
+                                    Мы свяжемся с вами с <span class="call-time">09:00 до 18:00</span> по московскому времени
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="specialist-section">
+                        <h3 class="specialist-title text-center">Ваш персональный специалист</h3>
+                        
+                        <div class="specialist-card">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Alex" alt="Алексей Морозов" class="avatar">
+                            
+                            <div class="specialist-info">
+                                <h4 class="specialist-name">Алексей Морозов</h4>
+                                <p class="specialist-position">Специалист по займам</p>
+                                
+                                <div class="contact-links">
+                                    <a href="tel:+74951234567" class="contact-link">
+                                        <svg class="contact-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                                        </svg>
+                                        <span>+7 (495) 123-45-67</span>
+                                    </a>
+                                    <a href="mailto:a.morozov@company.ru" class="contact-link">
+                                        <svg class="contact-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                            <polyline points="22,6 12,13 2,6"></polyline>
+                                        </svg>
+                                        <span>a.morozov@company.ru</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let timeLeft = 180;
+        const totalTime = 180;
+        const radius = 45;
+        const circumference = 2 * Math.PI * radius;
+        
+        const timerElement = document.getElementById('timer');
+        const progressBar = document.getElementById('progressBar');
+        const progressCircle = document.getElementById('progressCircle');
+        const processingScreen = document.getElementById('processingScreen');
+        const completedScreen = document.getElementById('completedScreen');
+        const applicationDateElement = document.getElementById('applicationDate');
+        const applicationNumberElement = document.getElementById('applicationNumber');
+        
+        progressCircle.style.strokeDasharray = circumference;
+        progressCircle.style.strokeDashoffset = circumference;
+        
+        const today = new Date();
+        const formattedDate = today.toLocaleDateString('ru-RU');
+        applicationDateElement.textContent = formattedDate;
+        
+        const appNumber = `№ ${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}-${String(Math.floor(Math.random() * 90000) + 10000)}`;
+        applicationNumberElement.textContent = appNumber;
+        
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+        
+        function updateProgress() {
+            const progressPercent = ((totalTime - timeLeft) / totalTime) * 100;
+            const offset = circumference - (progressPercent / 100) * circumference;
+            
+            timerElement.textContent = formatTime(timeLeft);
+            progressBar.style.width = progressPercent + '%';
+            progressCircle.style.strokeDashoffset = offset;
+            
+            if (timeLeft > 0) {
+                timeLeft--;
+                setTimeout(updateProgress, 1000);
+            } else {
+                processingScreen.classList.add('hidden');
+                completedScreen.classList.remove('hidden');
+            }
+        }
+        
+        updateProgress();
+    </script>
+</body>
+</html>
